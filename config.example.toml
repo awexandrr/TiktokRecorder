@@ -1,0 +1,29 @@
+
+[tiktok]
+unique_id = ""
+ms_token = ""
+
+[ntfy]
+host = ""
+topic = ""
+message = """
+{username} is live now!
+"""
+
+[download]
+# directory to save tmp download file
+dir = "videos/"
+
+# video format supported by ffmpeg
+output_ext = "mp4"
+
+# datetime strptime format
+timestamp_format = "%Y%m%d"
+
+# save file duration
+file_duration = "5d"
+
+[gluetun]
+proxy = ""
+http_server = ""
+api_key = ""
