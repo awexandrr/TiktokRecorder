@@ -3,30 +3,20 @@ import os
 import sys
 import httpx
 import asyncio
+from asyncio import CancelledError, Task
 
-from tiktok import app
+from ntfy import Notify
 from config import Config
 from TikTokLive import TikTokLiveClient
 from TikTokLive.client.logger import LogLevel
 from TikTokLive.events import DisconnectEvent
 from ffmpy import FFRuntimeError
-from ntfy import Notify, Opcode
+from utils import cancel_task
+from tiktok import app, recording
 
 VideoQualityOrder = ["ld", "sd", "hd", "uhd", "origin"]
 _config_file = os.environ.get("CONFIG_FILE") or "config.toml"
 config = Config(_config_file)
-
-
-async def wait_task(tasks: asyncio.Task = None) -> None:
-    if not tasks:
-        return
-
-    try:
-        await asyncio.wait_for(tasks, timeout=10)
-    except asyncio.TimeoutError:
-        tasks.cancel()
-        await tasks
-
 
 async def main():
     """ main entry """
@@ -35,8 +25,9 @@ async def main():
     ntfy = Notify()
 
     client = None
-    status = False
-    tasks: asyncio.Task = None
+    status = True
+    client_tasks: Task = None
+    recorder_tasks: Task = None
 
     while True:
         if not client or not client.web:
@@ -54,14 +45,25 @@ async def main():
 
         try:
             status = True
-            tasks = await client.connect(fetch_room_info=True)
+            client_tasks = await client.start(fetch_room_info=True)
+            recorder_tasks = asyncio.get_event_loop().create_task(
+                recording(client, client_tasks))
+
+            await asyncio.gather(client_tasks, recorder_tasks)
+
+        except CancelledError as e:
+            client.logger.error(F"{e}")
+
+        except FFRuntimeError as e:
+            client.logger.error(F"{e}")
 
         except Exception as e:
-            client.logger.info(F"{e}")
+            client.logger.error(F"{e}")
 
         finally:
-            await wait_task(tasks)
-            await client.disconnect(close_client=False)
+            client.logger.error("client stopped")
+            await cancel_task(client_tasks)
+            await cancel_task(recorder_tasks)
 
 if __name__ == '__main__':
     asyncio.run(main())

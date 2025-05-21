@@ -39,7 +39,7 @@ class TikTokLiveLogHandler(logging.StreamHandler):
 
     LOGGER_NAME: str = "TikTokLive"
     LOGGER: Optional[logging.Logger] = None
-    TIME_FORMAT: str = "%H:%M:%S"
+    TIME_FORMAT: str = "%Y-%m-%d %H:%M:%S"
 
     SPACING: Dict[int, int] = {
         logging.INFO: 1,
@@ -48,7 +48,7 @@ class TikTokLiveLogHandler(logging.StreamHandler):
         logging.DEBUG: 0
     }
 
-    FORMAT: str = "[%(name)s] %(levelname)s from %(stack)s:%(lineno)d — %(message)s"
+    FORMAT: str = "%(asctime)s %(levelname)s from %(stack)s:%(lineno)d — %(message)s"
 
     def __init__(
             self,

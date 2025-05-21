@@ -55,7 +55,7 @@ class onConnectCallback(BaseCallback):
             room_info=self._client.room_info,
             output_format=self._config.download.output_ext,
             quality=quality,
-            record_format=VideoFetchFormat.HLS,
+            record_format=VideoFetchFormat.FLV,
         )
 
         await self._ntfy.opcode(Opcode.CLIENT_CONNECTED)

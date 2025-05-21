@@ -98,7 +98,7 @@ class FetchVideoDataRoute(ClientRoute):
 
         """
 
-        return bool(self._ffmpeg) and self._thread and self._ffmpeg.process
+        return bool(self._ffmpeg) and self._thread and self._ffmpeg.process.poll()
 
     @property
     def output_filename(self) -> Optional[str]:
@@ -211,7 +211,7 @@ class FetchVideoDataRoute(ClientRoute):
             return
 
         if self._ffmpeg.process.poll():
-            os.kill(self._ffmpeg.process.pid, signal.SIGINT)
+            os.kill(self._ffmpeg.process.pid, signal.SIGTERM)
 
         self._ffmpeg = None
         self._thread = None
@@ -237,7 +237,8 @@ class FetchVideoDataRoute(ClientRoute):
 
         finish_time: int = int(datetime.utcnow().timestamp())
         record_time: int = finish_time - self._recording_started_at
-
+        
+        self.stop()
         self._logger.info(
             f"Download stopped for user @\"{unique_id}\" which started at {self._recording_started_at} and lasted "
             f"for {record_time} second(s)."

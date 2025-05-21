@@ -1,6 +1,8 @@
 
 import re
 from typing import Any
+import asyncio 
+from asyncio import CancelledError, Timeout, Task
 from TikTokLive.client.web.routes.fetch_video_data import VideoFetchQuality
 from dataclasses import dataclass
 
@@ -39,3 +41,20 @@ def get_clean_title(s: str) -> str:
         s = f"t_{s}"
 
     return s
+
+async def cancel_task(tasks: Task = None) -> None:
+    if not tasks:
+        return
+
+    try:
+        await asyncio.wait_for(tasks, timeout=10)
+
+    except TimeoutError:
+        tasks.cancel()
+        try:
+            await tasks
+        except CancelledError:
+            print("Task cancel error")
+
+    except CancelledError:
+        print("Task cancel error: ")

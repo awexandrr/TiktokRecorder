@@ -1,0 +1,13 @@
+services:
+  tiktok-recorder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image: tiktokrecorder:dev
+    container_name: tiktok-recorder
+    environment:
+      - CONFIG_FILE=/app/config.toml
+    volumes:
+      - ./config.toml:/app/config.toml:rw
+      - ./videos:/app/videos
+    restart: unless-stopped

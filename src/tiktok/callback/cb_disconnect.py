@@ -10,3 +10,6 @@ class onDisconnectCallback(BaseCallback):
     async def handler(self, event: DisconnectEvent):
         self._client.logger.info("Disconnected")
         await self._ntfy.opcode(Opcode.CLIENT_DISCONNECTED)
+
+        if self._client.web.fetch_video_data.is_recording:
+            self._client.web.fetch_video_data.stop()

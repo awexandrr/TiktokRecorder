@@ -19,3 +19,4 @@ class onLiveEndCallback(BaseCallback):
             await asyncio.sleep(1)
 
         await self._ntfy.opcode(Opcode.CLIENT_ENDED)
+        await self._client.disconnect()
